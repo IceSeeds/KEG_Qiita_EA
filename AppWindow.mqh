@@ -3,6 +3,7 @@
 #include <Controls\Edit.mqh>
 #include <Controls\ComboBox.mqh>
 
+
 class CPanelDialog : public CAppDialog
 {
    public:
