@@ -9,7 +9,7 @@ class CLineOrder
       bool create( string str_name );
 };
 
-/* MEMO ‚¢‚ç‚È‚¢‚ñ‚¶‚á‚È‚¢H@....‚¢‚âg‚¢‚»‚¤‚©‚à??? */ 
+/* MEMO ã„ã‚‰ãªã„ã‚“ã˜ã‚ƒãªã„ï¼Ÿã€€....ã„ã‚„ä½¿ã„ãã†ã‹ã‚‚??? */ 
 bool CLineOrder::lineOrder( string str_name )
 {
    if( !create( str_name ) )  return false;
@@ -27,8 +27,8 @@ bool CLineOrder::create( string str_name )
    return true;
 }
 
-/* TODO ObjectFind‚ÅA“Á’è‚Ì•¶š—ñ‚ªŠÜ‚Ü‚ê‚Ä‚¢‚½‚çBBB
-      ‘SObject‚ğŒŸõ‘ÎÛ‚É‚·‚éB
+/* TODO ObjectFindã§ã€ç‰¹å®šã®æ–‡å­—åˆ—ãŒå«ã¾ã‚Œã¦ã„ãŸã‚‰ã€‚ã€‚ã€‚
+      å…¨Objectã‚’æ¤œç´¢å¯¾è±¡ã«ã™ã‚‹ã€‚
 */
 bool CLineOrder::check()
 {

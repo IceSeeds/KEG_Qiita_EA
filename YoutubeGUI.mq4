@@ -37,7 +37,7 @@ void OnDeinit( const int reason )
 
 void OnTimer()
 {
-   // Ç†Ç∆Ç≈égÇ§
+   // „ÅÇ„Å®„Åß‰Ωø„ÅÜ
 }
 
 void OnChartEvent( const int     id,
