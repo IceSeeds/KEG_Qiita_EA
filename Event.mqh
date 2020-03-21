@@ -1,10 +1,5 @@
 
-#include "AppWindow.mqh"
-#include "Plugin/ExitCurrency.mqh"
-
-CPanelDialog   AppWindow;
-CExitCurrency  ExitCurrency;
-
+#include "Common/Common.mqh"
 
 class CEvent
 {
@@ -20,9 +15,9 @@ class CEvent
 bool CEvent::OnEvent( const int id, const long lparam, const double dparam, const string sparam )
 {
    if( !btnOrder( id, lparam, dparam, sparam ) )
-      Alert( "Error : " + (string)GetLastError() );
+      CMD.Error( "btnOrder" );
    if( !combSelect( id, lparam, dparam, sparam ) )
-      Alert( "Error : " + (string)GetLastError() );   
+      CMD.Error( "combSelect" );
    
    return true;
 }
@@ -32,11 +27,11 @@ bool CEvent::btnOrder( const int id, const long lparam, const double dparam, con
    if( ( StringFind( sparam, "btnBuy", 4 ) != -1 ) && id == CHARTEVENT_OBJECT_CLICK ) 
    {
       if( !Order( 0, (double)AppWindow.m_editLots.Text() ) )
-         Alert( "Error : " + (string)GetLastError() );
+         CMD.Error( "btnOrder : Order Buy" );
    }else if( ( StringFind( sparam, "btnSell", 4 ) != -1 ) && id == CHARTEVENT_OBJECT_CLICK ) 
    {
       if( !Order( 1, (double)AppWindow.m_editLots.Text() ) )
-         Alert( "Error : " + (string)GetLastError() );
+         CMD.Error( "btnOrder : Order Sell" );
    }
    
    return true;
@@ -60,11 +55,15 @@ bool CEvent::combSelect( const int id, const long lparam, const double dparam, c
       {
          case 0: // to All Exit
             if( !ExitCurrency.exit() )
-               Alert( "Error : " + (string)GetLastError() );
+               CMD.Error( "combSelect : All Exit" );
             break;
          case 1: // to This Exit
             if( !ExitCurrency.exit( Symbol() ) )
-               Alert( "Error : " + (string)GetLastError() );
+               CMD.Error( "combSelect : This Exit" );
+            break;
+         case 2: // to Line Order
+            if( !LineOrder.lineOrder( CMD.GetTimes() ) )
+               CMD.Error( "LineOrder" );
             break;
          default:
             Alert( "not select" );
