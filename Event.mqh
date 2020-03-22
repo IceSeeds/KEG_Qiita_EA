@@ -1,9 +1,5 @@
 
-#include "AppWindow.mqh"
-#include "Plugin/ExitCurrency.mqh"
-
-CPanelDialog   AppWindow;
-CExitCurrency  ExitCurrency;
+#include "Common/Common.mqh";
 
 
 class CEvent
@@ -15,6 +11,8 @@ class CEvent
       bool  btnOrder( const int id, const long lparam, const double dparam, const string sparam );
       bool  Order( int i_type, double d_lots );
       bool  combSelect( const int id, const long lparam, const double dparam, const string sparam );
+      bool  btnLine( const int id, const long lparam, const double dparam, const string sparam );
+   
 };
 
 bool CEvent::OnEvent( const int id, const long lparam, const double dparam, const string sparam )
@@ -22,7 +20,10 @@ bool CEvent::OnEvent( const int id, const long lparam, const double dparam, cons
    if( !btnOrder( id, lparam, dparam, sparam ) )
       Alert( "Error : " + (string)GetLastError() );
    if( !combSelect( id, lparam, dparam, sparam ) )
-      Alert( "Error : " + (string)GetLastError() );   
+      CMD.Error( "combSelect" );
+   if( !btnLine( id, lparam, dparam, sparam ) )
+      CMD.Error( "btnLine" );
+   
    
    return true;
 }
@@ -45,7 +46,7 @@ bool CEvent::btnOrder( const int id, const long lparam, const double dparam, con
 bool CEvent::Order( int i_type, double d_lots )
 {
    if( OrderSend( Symbol(), i_type, d_lots, Close[0], 0, 0, 0, "GUISample", 999, 0, clrRed ) == -1 )
-      return false;
+      CMD.Error( "Order" );
    else
       Alert( "OrderSend Success!!\n Lots = " + (string)d_lots + "\n type = " + (string)i_type );
    
@@ -60,16 +61,39 @@ bool CEvent::combSelect( const int id, const long lparam, const double dparam, c
       {
          case 0: // to All Exit
             if( !ExitCurrency.exit() )
-               Alert( "Error : " + (string)GetLastError() );
+               CMD.Error( "combSelect : All Exit" );
             break;
          case 1: // to This Exit
             if( !ExitCurrency.exit( Symbol() ) )
-               Alert( "Error : " + (string)GetLastError() );
+               CMD.Error( "combSelect : This Exit" );
             break;
          default:
             Alert( "not select" );
       }
    }
+   
+   return true;
+}
+
+bool CEvent::btnLine( const int id, const long lparam, const double dparam, const string sparam )
+{
+   if( ( StringFind( sparam, "btnLine0", 4 ) != -1 ) && id == CHARTEVENT_OBJECT_CLICK ) 
+      b_lineCreate0 = true;
+   if( ( StringFind( sparam, "btnLine1", 4 ) != -1 ) && id == CHARTEVENT_OBJECT_CLICK ) 
+      b_lineCreate1 = true;
+      
+   if( b_lineCreate0 && id == CHARTEVENT_CLICK )
+      if( !LineOrder.create( "LineOrder0", dparam ) )
+         CMD.Error( "LineOrder : Create" );
+      else
+         b_lineCreate0 = false;
+   
+   if( b_lineCreate1 && id == CHARTEVENT_CLICK )
+      if( !LineOrder.create( "LineOrder1", dparam ) )
+         CMD.Error( "LineOrder : Create" );
+      else
+         b_lineCreate1 = false;
+   
    
    return true;
 }
