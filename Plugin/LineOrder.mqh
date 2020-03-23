@@ -1,14 +1,34 @@
 
-#include "../AppWindow.mqh";
-CPanelDialog   AppWindow;
+#include "../Common/Common.mqh"
 
 class CLineOrder
 {
    public:
       bool  check();
       bool  GetLine();
+      
       bool  create( string str_name, double d_param );
+      bool  reCreate( string str_name, int i_type );
+      
+      bool  exitCheck();
+      bool  exit( int i_ticket );
 };
+
+bool CLineOrder::check()
+{
+   if( ObjectFind( ChartID(), "LineOrder0" ) != -1 )
+      b_check0 = true;
+   else
+      b_check0 = false;
+   
+   if( ObjectFind( ChartID(), "LineOrder1" ) != -1 )
+      b_check1 = true;
+   else
+      b_check1 = false;
+
+   
+   return true;
+}
 
 bool CLineOrder::create( string str_name, double d_param )
 {
@@ -46,13 +66,72 @@ bool CLineOrder::GetLine()
    return true;
 }
 
-/* TODO ObjectFindで、特定の文字列が含まれていたら。。。
-      全Objectを検索対象にする。
-*/
-bool CLineOrder::check()
+bool CLineOrder::reCreate( string str_name, int i_type )
 {
-   if( ObjectFind( ChartID(), "LineOrder0" ) )  return false;
-   if( ObjectFind( ChartID(), "LineOrder1" ) )  return false;
+   double d_line0 = ObjectGet( str_name, OBJPROP_PRICE1 );
+   ObjectDelete( ChartID(), str_name );
       
+   string str_type;
+     
+   if( i_type == 0 )
+   {
+      if( d_line0 > Close[0] )
+         str_type = "LongProfit";
+      else
+         str_type = "LongLoss";
+   }else{
+      if( d_line0 < Close[0] )
+         str_type = "SellProfit";
+      else
+         str_type = "SellLoss";   
+   }
+   
+   if( OrderSelect( OrdersTotal() - 1, SELECT_BY_POS, MODE_TRADES ) )
+   {
+      string str_exName = "KEG_" + Symbol() + "_" + (string)OrderTicket() + "_" + str_type;
+      if( !ObjectCreate( ChartID(), str_exName, OBJ_HLINE, 0, 0, d_line0 ) ) return false;
+   }else{
+      return false;
+   }
+   
+   return true;
+}
+
+bool CLineOrder::exitCheck()
+{
+   string objGet[];
+   
+   if( ObjectsTotal() >= 1 )
+   {
+      for( int i = 0; i < ObjectsTotal(); i++ )
+      {
+         if( StringSplit( ObjectName( i ), '_', objGet ) != 0 && objGet[0] == "KEG" )
+         {
+            double objPrice = NormalizeDouble( ObjectGet( ObjectName( i ), OBJPROP_PRICE1 ), Digits() );
+            
+            if( ( objGet[3] == "LongLoss" && objPrice >= Close[ 0 ] ) || ( objGet[3] == "LongProfit" && objPrice <= Close[ 0 ] ) || 
+                ( objGet[3] == "SellLoss" && objPrice <= Close[ 0 ] ) || ( objGet[3] == "SellProfit" && objPrice >= Close[ 0 ] ) )
+            {
+               if( !exit( (int)objGet[2] ) ) return false;
+               ObjectsDeleteAll( ChartID(), objGet[0] + "_" + objGet[1] + "_" + objGet[2] ); 
+            }
+         }
+      }
+   }
+   
+   return true;
+}
+
+bool CLineOrder::exit( int i_ticket )
+{
+   for( int i = OrdersTotal() - 1; i >= 0; i-- )
+   {
+      if( !OrderSelect( i, SELECT_BY_POS, MODE_TRADES ) ) continue;
+      if( OrderSymbol() != Symbol() ) continue;
+      if( OrderTicket() != i_ticket ) continue;
+      if( !OrderClose( OrderTicket(), OrderLots(), OrderClosePrice(), 0 ) ) return false;
+   }
+   Sleep( 500 );
+   
    return true;
 }
