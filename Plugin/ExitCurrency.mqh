@@ -20,6 +20,7 @@ bool CExitCurrency::exit()
       }
    }   
    
+   
    return true;
 }
 
@@ -32,6 +33,7 @@ bool CExitCurrency::exit( string str_symbol )
       if( !OrderClose( OrderTicket(), OrderLots(), OrderClosePrice(), 0 ) ) return false;
       Sleep( 10 );
    }
+   
    
    return true;
 }

@@ -14,11 +14,14 @@ string CCMD::GetTimes()
    MqlDateTime times ;
    TimeToStruct( TimeLocal(), times );
    
+   
    return (string)times.year + (string)times.mon + (string)times.day + (string)times.hour + (string)times.min + (string)times.sec;
 }
 
 void CCMD::Error( string str_place )
 {
+   int errorCode = GetLastError();
+   
    if( GetLastError() != ERR_NO_ERROR && ERR_OBJECT_ALREADY_EXISTS )
-      Alert( "Place : " + str_place + "\nErrorCode : " + (string)GetLastError() + "\nDetails : " + ErrorDescription( GetLastError() ) );
+      Alert( "Place : " + str_place + "\nErrorCode : " + (string)errorCode + "\nDetails : " + ErrorDescription( errorCode ) );
 }
