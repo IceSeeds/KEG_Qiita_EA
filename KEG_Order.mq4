@@ -42,15 +42,23 @@ void OnTimer()
    
    if( b_check0 )
       LineOrder.getLine( str_lineName0 );
-   else
+   else if( AppWindow.m_labelPips0.Text() != "" )
       LineOrder.reset( str_lineName0 );
       
    if( b_check1 )
       LineOrder.getLine( str_lineName1 );
-   else
+   else if( AppWindow.m_labelPips1.Text() != "" )
       LineOrder.reset( str_lineName1 );      
    
    LineOrder.exitCheck();
+   
+
+   static int bars_total = Bars;
+   if( Bars != bars_total )
+   {     
+       Alerts.check();
+      bars_total = Bars;
+   }
 }
 
 void OnChartEvent( const int     id,
